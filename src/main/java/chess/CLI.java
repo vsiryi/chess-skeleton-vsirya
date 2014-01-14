@@ -1,5 +1,7 @@
 package chess;
 
+import chess.pieces.Piece;
+
 import java.io.*;
 
 /**
@@ -42,7 +44,7 @@ public class CLI {
 
     void startEventLoop() {
         writeOutput("Type 'help' for a list of commands.");
-        gameState = new GameState();
+        doNewGame();
 
         while (true) {
             showBoard();
@@ -51,27 +53,33 @@ public class CLI {
             String input = getInput();
             if (input == null) {
                 break; // No more input possible; this is the only way to exit the event loop
-            } else if (input.equals("help")) {
-                showCommands();
-            } else if (input.equals("new")) {
-                gameState = new GameState();
-            } else if (input.equals("board")) {
-                writeOutput("Current Board State:");
-            } else if (input.equals("quit")) {
-                writeOutput("Goodbye!");
-                System.exit(0);
-            } else if (input.equals("list")) {
-                writeOutput("Sorry; 'list' is not yet implemented");
-            } else if (input.startsWith("move")) {
-                writeOutput("Sorry; 'move' is not yet implemented");
-            } else {
-                writeOutput("I didn't understand that.  Type 'help' for a list of commands.");
+            } else if (input.length() > 0) {
+                if (input.equals("help")) {
+                    showCommands();
+                } else if (input.equals("new")) {
+                    doNewGame();
+                } else if (input.equals("quit")) {
+                    writeOutput("Goodbye!");
+                    System.exit(0);
+                } else if (input.equals("board")) {
+                    writeOutput("Current Game:");
+                } else if (input.equals("list")) {
+                    writeOutput("====> List Is Not Implemented (yet) <====");
+                } else if (input.startsWith("move")) {
+                    writeOutput("====> Move Is Not Implemented (yet) <====");
+                } else {
+                    writeOutput("I didn't understand that.  Type 'help' for a list of commands.");
+                }
             }
         }
     }
 
-    private void showBoard() {
+    private void doNewGame() {
+        gameState = new GameState();
+        gameState.reset();
+    }
 
+    private void showBoard() {
         writeOutput(getBoardAsString());
     }
 
@@ -88,11 +96,12 @@ public class CLI {
     /**
      * Display the board for the user(s)
      */
-    public String getBoardAsString() {
+    String getBoardAsString() {
         StringBuilder builder = new StringBuilder();
+        builder.append(NEWLINE);
 
         printColumnLabels(builder);
-        for (int i = GameState.MAX_ROW; i >= GameState.MIN_ROW; i--) {
+        for (int i = Position.MAX_ROW; i >= Position.MIN_ROW; i--) {
             printSeparator(builder);
             printSquares(i, builder);
         }
@@ -106,8 +115,11 @@ public class CLI {
 
     private void printSquares(int rowLabel, StringBuilder builder) {
         builder.append(rowLabel);
-        for (char c = GameState.MIN_COLUMN; c <= GameState.MAX_COLUMN; c++) {
-            builder.append(" |  ");
+
+        for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
+            Piece piece = gameState.getPieceAt(String.valueOf(c) + rowLabel);
+            char pieceChar = piece == null ? ' ' : piece.getIdentifier();
+            builder.append(" | ").append(pieceChar);
         }
         builder.append(" | ").append(rowLabel).append(NEWLINE);
     }
@@ -118,7 +130,7 @@ public class CLI {
 
     private void printColumnLabels(StringBuilder builder) {
         builder.append("   ");
-        for (char c = GameState.MIN_COLUMN; c <= GameState.MAX_COLUMN; c++) {
+        for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
             builder.append(" ").append(c).append("  ");
         }
 
