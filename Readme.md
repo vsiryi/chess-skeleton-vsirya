@@ -16,11 +16,11 @@ $ mvn compile exec:java
 Welcome to Chess!
 Type 'help' for a list of commands.
 
-    a   b   c   d   e   f   g   h
+    a   b   c   d   e   f   g   h  
   +---+---+---+---+---+---+---+---+
-8 | r | n | b | q | k | b | n | r | 8
+8 | R | N | B | Q | K | B | N | R | 8
   +---+---+---+---+---+---+---+---+
-7 | p | p | p | p | p | p | p | p | 7
+7 | P | P | P | P | P | P | P | P | 7
   +---+---+---+---+---+---+---+---+
 6 |   |   |   |   |   |   |   |   | 6
   +---+---+---+---+---+---+---+---+
@@ -30,11 +30,11 @@ Type 'help' for a list of commands.
   +---+---+---+---+---+---+---+---+
 3 |   |   |   |   |   |   |   |   | 3
   +---+---+---+---+---+---+---+---+
-2 | P | P | P | P | P | P | P | P | 2
+2 | p | p | p | p | p | p | p | p | 2
   +---+---+---+---+---+---+---+---+
-1 | R | N | B | Q | K | B | N | R | 1
+1 | r | n | b | q | k | b | n | r | 1
   +---+---+---+---+---+---+---+---+
-    a   b   c   d   e   f   g   h
+    a   b   c   d   e   f   g   h  
 
 White's Move
 > help
