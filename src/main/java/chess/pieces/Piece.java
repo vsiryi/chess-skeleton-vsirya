@@ -15,9 +15,9 @@ public abstract class Piece {
     public char getIdentifier() {
         char id = getIdentifyingCharacter();
         if (owner.equals(Player.White)) {
-            return Character.toUpperCase(id);
-        } else {
             return Character.toLowerCase(id);
+        } else {
+            return Character.toUpperCase(id);
         }
     }
 
