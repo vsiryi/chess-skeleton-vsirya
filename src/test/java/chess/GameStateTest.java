@@ -49,4 +49,38 @@ public class GameStateTest {
         assertTrue("A queen should be at d8", blackQueen instanceof Queen);
         assertEquals("The queen at d8 should be owned by Black", Player.Black, blackQueen.getOwner());
     }
+
+    @Test
+    public void testMiddleGameList() {
+        // Start the game
+        state.reset();
+
+        //White move
+        assertTrue("Correct move", state.move("e2", "e4"));
+
+        //Black move
+        assertFalse("Incorrect move, because black's move", state.move("a2", "a3"));
+        assertTrue("Correct move", state.move("d7", "d5"));
+
+        //White kill pawn
+        assertTrue("Correct move", state.move("e4", "d5"));
+        assertFalse("No check...", state.isCheck());
+
+        //Black move
+        assertTrue("Look at knight moves", state.list().contains("b8 c6"));
+        assertTrue("Knight move", state.move("b8", "c6"));
+
+        //White move
+        assertTrue("Correct move", state.move("f2", "f3"));
+
+        //Black make check
+        assertTrue("Check!", state.move("d8", "h4"));
+        assertTrue("Really check!", state.isCheck());
+        assertFalse("End of Game?", state.isEndOfGame());
+
+        //White
+        assertEquals("Only 2 available moves", 2, state.list().size());
+        assertTrue("King go away", state.list().contains("e1 e2"));
+        assertTrue("Pawn defence", state.list().contains("g2 g3"));
+    }
 }

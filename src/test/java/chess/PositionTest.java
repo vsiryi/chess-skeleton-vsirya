@@ -24,4 +24,32 @@ public class PositionTest {
 
         assertEquals("The positions should equal each other", one, other);
     }
+
+    @Test
+    public void testPositionOnBoard() {
+        {
+            Position pos = new Position("d5");
+            assertTrue("Position d5 on board", pos.onBoard());
+        }
+
+        {
+            Position pos = new Position("h8");
+            assertTrue("Position h8 on board", pos.onBoard());
+        }
+
+        {
+            Position pos = new Position("a1");
+            assertTrue("Position a1 on board", pos.onBoard());
+        }
+
+        {
+            Position pos = new Position("d9");
+            assertFalse("Position d9 out of board", pos.onBoard());
+        }
+
+        {
+            Position pos = new Position("s2");
+            assertFalse("Position s2 out of board", pos.onBoard());
+        }
+    }
 }

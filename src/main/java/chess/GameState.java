@@ -3,8 +3,7 @@ package chess;
 
 import chess.pieces.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class that represents the current state of the game.  Basically, what pieces are in which positions on the
@@ -22,15 +21,29 @@ public class GameState {
      */
     private Map<Position, Piece> positionToPieceMap;
 
+    private Map<Position, Set<Position>> availableMoves;
+
     /**
      * Create the game state.
      */
     public GameState() {
-        positionToPieceMap = new HashMap<Position, Piece>();
+        positionToPieceMap = new HashMap<>();
+        availableMoves = new HashMap<>();
     }
 
     public Player getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public Player getSeparatePlayer(){
+        return currentPlayer == Player.White ? Player.Black : Player.White;
+    }
+
+    public GameState copy(){
+        GameState copy = new GameState();
+        copy.currentPlayer = currentPlayer;
+        copy.positionToPieceMap.putAll(positionToPieceMap);
+        return copy;
     }
 
     /**
@@ -72,6 +85,8 @@ public class GameState {
         placePiece(new Pawn(Player.Black), new Position("f7"));
         placePiece(new Pawn(Player.Black), new Position("g7"));
         placePiece(new Pawn(Player.Black), new Position("h7"));
+
+        prepareAvailableMoves(positionToPieceMap, availableMoves);
     }
 
     /**
@@ -93,6 +108,118 @@ public class GameState {
         return positionToPieceMap.get(position);
     }
 
+    public List<String> list(){
+        List<String> moves = new ArrayList<>();
+        for(Position position :  positionToPieceMap.keySet()){
+            Piece piece = positionToPieceMap.get(position);
+            if(piece.getOwner() == currentPlayer){
+                Set<Position> availableMoves = this.availableMoves.get(position);
+                if (availableMoves != null) {
+                    for(Position available : availableMoves){
+                        moves.add(String.format("%s %s", position.toString(), available.toString()));
+                    }
+                }
+            }
+        }
+        return moves;
+    }
+
+    public boolean move(String from, String to){
+        Piece piece = getPieceAt(from);
+        if(piece == null || piece.getOwner() != getCurrentPlayer()){
+            return false;
+        }
+
+        Position pt = new Position(to);
+        if(!pt.onBoard()){
+            return false;
+        }
+
+        Position pf = new Position(from);
+        movePiece(piece, pf, pt);
+        prepareAvailableMoves(positionToPieceMap, availableMoves);
+        switchPlayer();
+        return true;
+    }
+
+    private void switchPlayer(){
+        currentPlayer = currentPlayer == Player.White ? Player.Black : Player.White;
+    }
+
+    public boolean isCheck(){
+        Position king = getPlayerKingPosition(getCurrentPlayer());
+        return king == null || getAvailableMovesForPlayer(getSeparatePlayer()).contains(king);
+    }
+
+    public boolean isEndOfGame(){
+        if(isCheck()){
+            //needs to get all moves, that keep King in game. If no moves available - End of Game
+
+            //prepare copy of available moves
+            Map<Position, Set<Position>> availableMovesCopy = new HashMap<>();
+            availableMovesCopy.putAll(availableMoves);
+            availableMoves.clear();
+
+            for(Position from : availableMovesCopy.keySet()){
+                if(!isCurrentUserPiece(from)){
+                    continue;
+                }
+                Set<Position> available = availableMovesCopy.get(from);
+                Set<Position> real = new HashSet<>();
+                for(Position to : available){
+                    GameState copyState = this.copy();
+                    copyState.move(from.toString(), to.toString());
+                    copyState.switchPlayer();
+                    if(!copyState.isCheck()){
+                        real.add(to);
+                    }
+                }
+
+                if(real.size() > 0){
+                    availableMoves.put(from, real);
+                }
+            }
+
+            return availableMoves.size() == 0;
+        } else {
+            return false;
+        }
+    }
+
+    private void prepareAvailableMoves(Map<Position, Piece> positionToPieceMap,
+                                       Map<Position, Set<Position>> availableMoves){
+        availableMoves.clear();
+        for(Position position :  positionToPieceMap.keySet()){
+            Piece piece = positionToPieceMap.get(position);
+            Set<Position> available = piece.move(position, positionToPieceMap);
+            availableMoves.put(position, available);
+        }
+    }
+
+    private Set<Position> getAvailableMovesForPlayer(Player player){
+        Set<Position> moves = new HashSet<>();
+        for(Position position :  positionToPieceMap.keySet()){
+            Piece piece = positionToPieceMap.get(position);
+            if (piece.getOwner() == player) {
+                Set<Position> pieceMoves = availableMoves.get(position);
+                if(pieceMoves != null){
+                    moves.addAll(pieceMoves);
+                }
+            }
+        }
+        return moves;
+    }
+
+    private Position getPlayerKingPosition(Player player){
+        for(Position position : positionToPieceMap.keySet()){
+            Piece piece = positionToPieceMap.get(position);
+            if (piece.getOwner() == player && piece instanceof King) {
+                return position;
+            }
+        }
+        return null;
+    }
+
     /**
      * Method to place a piece at a given position
      * @param piece The piece to place
@@ -100,5 +227,15 @@ public class GameState {
      */
     private void placePiece(Piece piece, Position position) {
         positionToPieceMap.put(position, piece);
+    }
+
+    private void movePiece(Piece piece, Position from, Position to){
+        positionToPieceMap.remove(from);
+        placePiece(piece, to);
+    }
+
+    private boolean isCurrentUserPiece(Position position){
+        Piece piece = getPieceAt(position);
+        return piece.getOwner() == getCurrentPlayer();
     }
 }

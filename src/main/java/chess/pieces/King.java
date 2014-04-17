@@ -1,5 +1,6 @@
 package chess.pieces;
 
+import chess.PieceMoveContext;
 import chess.Player;
 
 /**
@@ -13,5 +14,12 @@ public class King extends Piece {
     @Override
     protected char getIdentifyingCharacter() {
         return 'k';
+    }
+
+    @Override
+    protected void move(PieceMoveContext context) {
+        for(int i = 1; i < 9; i++){
+            context.add(nextPosition(context.getPosition(), Direction.getDirection(i)));
+        }
     }
 }

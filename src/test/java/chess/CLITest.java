@@ -57,8 +57,8 @@ public class CLITest {
         List<String> output = captureOutput();
 
         assertEquals("Should have had 6 calls to print strings", 6, output.size());
-        assertEquals("It should have printed the board first", 701, output.get(2).length());
-        assertEquals("It should have printed the board again", 701, output.get(4).length());
+        assertEquals("It should have printed the board first", 721, output.get(2).length());
+        assertEquals("It should have printed the board again", 721, output.get(4).length());
     }
 
     @Test
@@ -68,6 +68,39 @@ public class CLITest {
 
         assertEquals("Should have had 9 output calls", 9, output.size());
         assertEquals("It should have printed the board three times", output.get(2), output.get(4));
+    }
+
+    @Test
+    public void testListCommand() throws Exception {
+        runCliWithInput("list");
+        List<String> output = captureOutput();
+
+        assertEquals("Should have had 27 output calls", 27, output.size());
+        assertEquals("First pawn one step move", "\ta2 a3", output.get(5));
+        assertEquals("First pawn two step move", "\ta2 a4", output.get(6));
+        assertEquals("Knight left move", "\tb1 a3", output.get(7));
+        assertEquals("Knight right move", "\tb1 c3", output.get(8));
+    }
+
+    @Test
+    public void testMoveCommandIncorrectSignature() throws Exception {
+        runCliWithInput("move");
+        List<String> output = captureOutput();
+        assertEquals("Incorrect move command", "Incorrect command format. Use: 'move <colrow> <colrow>'", output.get(4));
+    }
+
+    @Test
+    public void testMoveCommand() throws Exception {
+        runCliWithInput("move e2 e4");
+        List<String> output = captureOutput();
+        assertEquals("Move done successfully", "White's Move Done", output.get(4));
+    }
+
+    @Test
+    public void testMoveCommandIncorrectPosition() throws Exception {
+        runCliWithInput("move e5 e6");
+        List<String> output = captureOutput();
+        assertEquals("Position e5 is free", "Move from e5 to e6 is not acceptable", output.get(4));
     }
 
     private List<String> captureOutput() {

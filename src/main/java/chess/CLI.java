@@ -3,6 +3,8 @@ package chess;
 import chess.pieces.Piece;
 
 import java.io.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class provides the basic CLI interface to the Chess game.
@@ -64,9 +66,10 @@ public class CLI {
                 } else if (input.equals("board")) {
                     writeOutput("Current Game:");
                 } else if (input.equals("list")) {
-                    writeOutput("====> List Is Not Implemented (yet) <====");
+                    writeOutput("White's Possible Moves:");
+                    list();
                 } else if (input.startsWith("move")) {
-                    writeOutput("====> Move Is Not Implemented (yet) <====");
+                    move(input);
                 } else {
                     writeOutput("I didn't understand that.  Type 'help' for a list of commands.");
                 }
@@ -91,6 +94,38 @@ public class CLI {
         writeOutput("    'board'                      Show the chess board");
         writeOutput("    'list'                       List all possible moves");
         writeOutput("    'move <colrow> <colrow>'     Make a move");
+    }
+
+    private void list(){
+        List<String> output = gameState.list();
+        Collections.sort(output);
+        for(String line : output){
+            writeOutput("\t" + line);
+        }
+    }
+
+    private void move(String input){
+        String[] args = input.split(" ");
+        if(args.length != 3){
+            writeOutput(String.format("Incorrect command format. Use: 'move <colrow> <colrow>'"));
+            return;
+        }
+
+        String from = args[1];
+        String to = args[2];
+
+        //move method process 'move' and switch between players
+        if(gameState.move(from, to)){
+            if(gameState.isEndOfGame()){
+                writeOutput(String.format("The game is over.  Congrats to %s.", gameState.getSeparatePlayer()));
+            }
+            writeOutput(String.format("%s's Move Done", gameState.getSeparatePlayer()));
+            if(gameState.isCheck()){
+                writeOutput("Check!");
+            }
+        } else {
+            writeOutput(String.format("Move from %s to %s is not acceptable", from, to));
+        }
     }
 
     /**

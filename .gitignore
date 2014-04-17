@@ -2,3 +2,6 @@
 target/
 chess.iml
 atlassian-ide-plugin.xml
+
+/chess.ipr
+/chess.iws

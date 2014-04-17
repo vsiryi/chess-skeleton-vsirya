@@ -38,6 +38,14 @@ public class Position {
         return column;
     }
 
+    /**
+     * Validate position
+     * @return TRUE if position on board
+     */
+    public boolean onBoard(){
+        return row >= MIN_ROW && row <= MAX_ROW && column >= MIN_COLUMN && column <= MAX_COLUMN;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
