@@ -51,19 +51,25 @@ public class GameStateTest {
     }
 
     @Test
-    public void testMiddleGameList() {
+    public void testGameSimulation() {
         // Start the game
         state.reset();
+
+        assertFalse("The White queen try jump over the pawn directly in front", state.move("d1", "d3"));
+        assertFalse("The White pawn try move diagonally, even though there is no piece to take", state.move("d2", "c3"));
 
         //White move
         assertTrue("Correct move", state.move("e2", "e4"));
 
         //Black move
+        assertFalse("The Black rook try take his own pawn", state.move("a8", "a7"));
+        assertFalse("The Black bishop try move vertically (and also take his own piece)", state.move("f8", "f7"));
+
         assertFalse("Incorrect move, because black's move", state.move("a2", "a3"));
         assertTrue("Correct move", state.move("d7", "d5"));
 
         //White kill pawn
-        assertTrue("Correct move", state.move("e4", "d5"));
+        assertTrue("Correct move. Kill black pawn.", state.move("e4", "d5"));
         assertFalse("No check...", state.isCheck());
 
         //Black move
@@ -72,6 +78,12 @@ public class GameStateTest {
 
         //White move
         assertTrue("Correct move", state.move("f2", "f3"));
+
+        //Black move
+        assertTrue("Correct move", state.move("e7", "e6"));
+
+        //White move
+        assertTrue("Correct move. Kill black pawn.", state.move("d5", "e6"));
 
         //Black make check
         assertTrue("Check!", state.move("d8", "h4"));

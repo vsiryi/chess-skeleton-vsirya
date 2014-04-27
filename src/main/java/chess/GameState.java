@@ -43,6 +43,7 @@ public class GameState {
         GameState copy = new GameState();
         copy.currentPlayer = currentPlayer;
         copy.positionToPieceMap.putAll(positionToPieceMap);
+        copy.availableMoves.putAll(availableMoves);
         return copy;
     }
 
@@ -136,6 +137,11 @@ public class GameState {
         }
 
         Position pf = new Position(from);
+
+        if(!availableMoves.containsKey(pf) || !availableMoves.get(pf).contains(pt)){
+            return false;
+        }
+
         movePiece(piece, pf, pt);
         prepareAvailableMoves(positionToPieceMap, availableMoves);
         switchPlayer();
@@ -156,15 +162,13 @@ public class GameState {
             //needs to get all moves, that keep King in game. If no moves available - End of Game
 
             //prepare copy of available moves
-            Map<Position, Set<Position>> availableMovesCopy = new HashMap<>();
-            availableMovesCopy.putAll(availableMoves);
-            availableMoves.clear();
+            Map<Position, Set<Position>> safeMoves = new HashMap<>();
 
-            for(Position from : availableMovesCopy.keySet()){
+            for(Position from : availableMoves.keySet()){
                 if(!isCurrentUserPiece(from)){
                     continue;
                 }
-                Set<Position> available = availableMovesCopy.get(from);
+                Set<Position> available = availableMoves.get(from);
                 Set<Position> real = new HashSet<>();
                 for(Position to : available){
                     GameState copyState = this.copy();
@@ -176,10 +180,10 @@ public class GameState {
                 }
 
                 if(real.size() > 0){
-                    availableMoves.put(from, real);
+                    safeMoves.put(from, real);
                 }
             }
-
+            availableMoves = safeMoves;
             return availableMoves.size() == 0;
         } else {
             return false;
